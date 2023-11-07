@@ -5,7 +5,17 @@ const tableName = process.env.SAMPLE_TABLE;
 
 // Create a DocumentClient that represents the query to add an item
 const dynamodb = require('aws-sdk/clients/dynamodb');
-const docClient = new dynamodb.DocumentClient();
+const docClient = new dynamodb.DocumentClient(process.env.AWS_SAM_LOCAL
+  ? {
+      credentials: {
+        accessKeyId: "DUMMYACCESSKEY",
+        secretAccessKey: "DUMMYSECRETACCESSKEY",
+      },
+      region: "ap-northeast-1",
+      endpoint: "http://dynamodb-local:8000",
+    }
+  : {}
+);
 
 /**
  * A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
