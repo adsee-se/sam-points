@@ -16,10 +16,7 @@ const docClient = new dynamodb.DocumentClient(
 
 exports.getAllQuestionsByIdHandler = async (event) => {
   const user_id = Number(event.pathParameters.id);
-  let response: { statusCode: number; body: any } = {
-    statusCode: 400,
-    body: {},
-  };
+  let response = {};
 
   try {
     const params = {
