@@ -60,7 +60,8 @@ Resources:
   getAllQuestionsByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/handlers/get-all-questions-by-id.getAllQuestionsByIdHandler
+      CodeUri: built/
+      Handler: get-all-questions-by-id.getAllQuestionsByIdHandler
       Runtime: nodejs16.x
       Architectures:
         - x86_64
