@@ -57,6 +57,32 @@ Resources:
             Path: /fruits
             Method: GET
 
+  getAllPointsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: built/
+      Handler: get-all-points.getAllPointsHandler
+      Runtime: nodejs16.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description:
+        A simple example includes a HTTP get method to get all points from
+        a DynamoDB table.
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref point
+      Environment:
+        Variables:
+          POINTS_TABLE: !Ref point
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /points
+            Method: GET
+
   getAllQuestionsByIdFunction:
     Type: AWS::Serverless::Function
     Properties:

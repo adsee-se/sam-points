@@ -1,4 +1,4 @@
-const tableName = process.env.QUESTIONS_TABLE;
+const tableName = process.env.POINTS_TABLE;
 
 const dynamodb = require("aws-sdk/clients/dynamodb");
 const docClient = new dynamodb.DocumentClient(
@@ -14,17 +14,21 @@ const docClient = new dynamodb.DocumentClient(
     : {}
 );
 
-exports.getAllQuestionsByIdHandler = async (event: any) => {
-  const user_id = Number(event.pathParameters.id);
+exports.getAllPointsHandler = async (event: any) => {
+  console.log("test");
+  if (event.httpMethod !== "GET") {
+    throw new Error(
+      `getAllItems only accept GET method, you tried: ${event.httpMethod}`
+    );
+  }
+  console.info("received:", event);
+
   let response: { statusCode: number; body: any } = { statusCode: 0, body: {} };
 
   try {
+    console.log(tableName, "tableName");
     const params = {
       TableName: tableName,
-      FilterExpression: "user_id = :user_idValue",
-      ExpressionAttributeValues: {
-        ":user_idValue": user_id,
-      },
     };
     const data = await docClient.scan(params).promise();
     const items = data.Items;
@@ -33,23 +37,15 @@ exports.getAllQuestionsByIdHandler = async (event: any) => {
       statusCode: 200,
       body: JSON.stringify(items),
     };
-  } catch (error) {
-    console.error("エラー:", error);
-
-    if (error.code === "ResourceNotFoundException") {
-      response = {
-        statusCode: 404,
-        body: "DynamoDBテーブルが見つかりません。",
-      };
-    } else {
-      response = {
-        statusCode: 500,
-        body: "内部サーバーエラー",
-      };
-    }
+  } catch (ResourceNotFoundException) {
+    response = {
+      statusCode: 404,
+      body: "Unable to call DynamoDB. Table resource not found.",
+    };
   }
 
-  // 全てのログは CloudWatch に書き込まれます
+  console.log(response);
+
   console.info(
     `response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`
   );

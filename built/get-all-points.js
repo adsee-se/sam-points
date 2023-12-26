@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const tableName = process.env.QUESTIONS_TABLE;
+const tableName = process.env.POINTS_TABLE;
 const dynamodb = require("aws-sdk/clients/dynamodb");
 const docClient = new dynamodb.DocumentClient(process.env.AWS_SAM_LOCAL
     ? {
@@ -21,16 +21,17 @@ const docClient = new dynamodb.DocumentClient(process.env.AWS_SAM_LOCAL
         endpoint: "http://dynamodb-local:8000",
     }
     : {});
-exports.getAllQuestionsByIdHandler = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    const user_id = Number(event.pathParameters.id);
+exports.getAllPointsHandler = (event) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("test");
+    if (event.httpMethod !== "GET") {
+        throw new Error(`getAllItems only accept GET method, you tried: ${event.httpMethod}`);
+    }
+    console.info("received:", event);
     let response = { statusCode: 0, body: {} };
     try {
+        console.log(tableName, "tableName");
         const params = {
             TableName: tableName,
-            FilterExpression: "user_id = :user_idValue",
-            ExpressionAttributeValues: {
-                ":user_idValue": user_id,
-            },
         };
         const data = yield docClient.scan(params).promise();
         const items = data.Items;
@@ -39,22 +40,13 @@ exports.getAllQuestionsByIdHandler = (event) => __awaiter(void 0, void 0, void 0
             body: JSON.stringify(items),
         };
     }
-    catch (error) {
-        console.error("エラー:", error);
-        if (error.code === "ResourceNotFoundException") {
-            response = {
-                statusCode: 404,
-                body: "DynamoDBテーブルが見つかりません。",
-            };
-        }
-        else {
-            response = {
-                statusCode: 500,
-                body: "内部サーバーエラー",
-            };
-        }
+    catch (ResourceNotFoundException) {
+        response = {
+            statusCode: 404,
+            body: "Unable to call DynamoDB. Table resource not found.",
+        };
     }
-    // 全てのログは CloudWatch に書き込まれます
+    console.log(response);
     console.info(`response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`);
     return response;
 });
