@@ -159,6 +159,32 @@ Resources:
             Path: /item
             Method: POST
 
+  putQuestionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: built/
+      Handler: src/handlers/put-question.putQuestionHandler
+      Runtime: nodejs16.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description:
+        A simple example includes a HTTP post method to add one item to
+        a DynamoDB table.
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref questions
+      Environment:
+        Variables:
+          QUESTIONS_TABLE: !Ref questions
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /question
+            Method: POST
+
   # DynamoDB table to store item: {id: &lt;ID&gt;, name: &lt;NAME&gt;}
   SampleTable:
     Type: AWS::Serverless::SimpleTable
