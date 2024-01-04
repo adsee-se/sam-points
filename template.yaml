@@ -219,3 +219,8 @@ Globals:
     Tracing: Active
   Api:
     TracingEnabled: true
+    Cors:
+      AllowOrigin: "'*'"
+      AllowCredentials: true
+      AllowMethods: "'POST'"
+      AllowHeaders: "'Content-Type,X-CSRF-TOKEN'"
