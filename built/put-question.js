@@ -39,14 +39,24 @@ exports.putQuestionHandler = (event) => __awaiter(void 0, void 0, void 0, functi
     console.log("ログ出力で確認：", body);
     const category = body.category;
     const title = body.title;
-    const question_text = body.question_text;
+    const questionText = body.questionText;
+    const userId = body.userId;
     // Creates a new item, or replaces an old item with a new item
     // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
     let response = { statusCode: 0, body: "", headers: {} };
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    const secondsString = `${year}${month}${day}${hours}${minutes}${seconds}`;
+    const id = Number(secondsString);
     try {
         const params = {
             TableName: tableName,
-            Item: { category, title, question_text },
+            Item: { id, userId, category, title, questionText },
         };
         const data = yield docClient.put(params).promise();
         response = {
