@@ -83,18 +83,18 @@ Resources:
             Path: /points
             Method: GET
 
-  getAllQuestionsByIdFunction:
+  getAllQuestionsByUserIdFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: built/
-      Handler: get-all-questions-by-id.getAllQuestionsByIdHandler
+      Handler: get-all-questions-by-user-id.getAllQuestionsByUserIdHandler
       Runtime: nodejs16.x
       Architectures:
         - x86_64
       MemorySize: 128
       Timeout: 100
       Description:
-        A simple example includes a HTTP get method to get all questions by id from
+        A simple example includes a HTTP get method to get all questions by userId from
         a DynamoDB table.
       Policies:
         - DynamoDBCrudPolicy:
@@ -106,7 +106,33 @@ Resources:
         Api:
           Type: Api
           Properties:
-            Path: /questions/{id}
+            Path: /questions/{userId}
+            Method: GET
+
+  getQuestionByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: built/
+      Handler: get-question-by-id.getQuestionByIdHandler
+      Runtime: nodejs16.x
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 100
+      Description:
+        A simple example includes a HTTP get method to get one item by
+        id from a DynamoDB table.
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref questions
+      Environment:
+        Variables:
+          QUESTIONS_TABLE: !Ref questions
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /question/{id}/{userId}
             Method: GET
 
   getByIdFunction:

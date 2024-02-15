@@ -1,4 +1,4 @@
-const tableName = process.env.POINTS_TABLE;
+const tableName = process.env.QUESTIONS_TABLE;
 
 const dynamodb = require("aws-sdk/clients/dynamodb");
 const docClient = new dynamodb.DocumentClient(
@@ -14,26 +14,32 @@ const docClient = new dynamodb.DocumentClient(
     : {}
 );
 
-exports.getAllPointsHandler = async (event: any) => {
+exports.getQuestionByIdHandler = async (event: any) => {
   if (event.httpMethod !== "GET") {
     throw new Error(
-      `getAllItems only accept GET method, you tried: ${event.httpMethod}`
+      `getMethod only accept GET method, you tried: ${event.httpMethod}`
     );
   }
-  console.info("received:", event);
 
-  let response: { statusCode: number; body: any } = { statusCode: 0, body: {} };
+  const id = event.pathParameters.id;
+  const userId = event.pathParameters.userId;
+
+  let response: { statusCode: number; body: any } = {
+    statusCode: 500,
+    body: {},
+  };
 
   try {
     const params = {
       TableName: tableName,
+      Key: { id: Number(id), userId: Number(userId) },
     };
-    const data = await docClient.scan(params).promise();
-    const items = data.Items;
+    const data = await docClient.get(params).promise();
+    const item = data.Item;
 
     response = {
       statusCode: 200,
-      body: JSON.stringify(items),
+      body: JSON.stringify(item),
     };
   } catch (ResourceNotFoundException) {
     response = {
@@ -42,10 +48,5 @@ exports.getAllPointsHandler = async (event: any) => {
     };
   }
 
-  console.info(
-    `response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`
-  );
   return response;
 };
-
-export {};

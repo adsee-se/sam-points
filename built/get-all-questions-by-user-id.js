@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const tableName = process.env.POINTS_TABLE;
+const tableName = process.env.QUESTIONS_TABLE;
 const dynamodb = require("aws-sdk/clients/dynamodb");
 const docClient = new dynamodb.DocumentClient(process.env.AWS_SAM_LOCAL
     ? {
@@ -21,15 +21,16 @@ const docClient = new dynamodb.DocumentClient(process.env.AWS_SAM_LOCAL
         endpoint: "http://dynamodb-local:8000",
     }
     : {});
-exports.getAllPointsHandler = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    if (event.httpMethod !== "GET") {
-        throw new Error(`getAllItems only accept GET method, you tried: ${event.httpMethod}`);
-    }
-    console.info("received:", event);
+exports.getAllQuestionsByUserIdHandler = (event) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = Number(event.pathParameters.userId);
     let response = { statusCode: 0, body: {} };
     try {
         const params = {
             TableName: tableName,
+            FilterExpression: "userId = :userIdValue",
+            ExpressionAttributeValues: {
+                ":userIdValue": userId,
+            },
         };
         const data = yield docClient.scan(params).promise();
         const items = data.Items;
@@ -38,12 +39,19 @@ exports.getAllPointsHandler = (event) => __awaiter(void 0, void 0, void 0, funct
             body: JSON.stringify(items),
         };
     }
-    catch (ResourceNotFoundException) {
-        response = {
-            statusCode: 404,
-            body: "Unable to call DynamoDB. Table resource not found.",
-        };
+    catch (error) {
+        if (error.code === "ResourceNotFoundException") {
+            response = {
+                statusCode: 404,
+                body: "DynamoDBテーブルが見つかりません。",
+            };
+        }
+        else {
+            response = {
+                statusCode: 500,
+                body: "内部サーバーエラー",
+            };
+        }
     }
-    console.info(`response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`);
     return response;
 });

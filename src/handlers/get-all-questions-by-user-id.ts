@@ -14,16 +14,16 @@ const docClient = new dynamodb.DocumentClient(
     : {}
 );
 
-exports.getAllQuestionsByIdHandler = async (event: any) => {
-  const user_id = Number(event.pathParameters.id);
+exports.getAllQuestionsByUserIdHandler = async (event: any) => {
+  const userId = Number(event.pathParameters.userId);
   let response: { statusCode: number; body: any } = { statusCode: 0, body: {} };
 
   try {
     const params = {
       TableName: tableName,
-      FilterExpression: "user_id = :user_idValue",
+      FilterExpression: "userId = :userIdValue",
       ExpressionAttributeValues: {
-        ":user_idValue": user_id,
+        ":userIdValue": userId,
       },
     };
     const data = await docClient.scan(params).promise();
@@ -34,8 +34,6 @@ exports.getAllQuestionsByIdHandler = async (event: any) => {
       body: JSON.stringify(items),
     };
   } catch (error) {
-    console.error("エラー:", error);
-
     if (error.code === "ResourceNotFoundException") {
       response = {
         statusCode: 404,
@@ -49,10 +47,6 @@ exports.getAllQuestionsByIdHandler = async (event: any) => {
     }
   }
 
-  // 全てのログは CloudWatch に書き込まれます
-  console.info(
-    `response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`
-  );
   return response;
 };
 
