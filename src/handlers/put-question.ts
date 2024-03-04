@@ -17,10 +17,11 @@ const docClient = new dynamodb.DocumentClient(
 );
 
 interface Body {
+  id: string;
+  userId: string;
   category: string;
   title: string;
   questionText: string;
-  userId: number;
 }
 
 interface Response {
@@ -33,7 +34,6 @@ interface Response {
  * A simple example includes a HTTP post method to add one item to a DynamoDB table.
  */
 exports.putQuestionHandler = async (event: any) => {
-  console.log("イベント：", event);
   if (event.httpMethod !== "POST") {
     throw new Error(
       `postMethod only accepts POST method, you tried: ${event.httpMethod} method.`
@@ -44,8 +44,7 @@ exports.putQuestionHandler = async (event: any) => {
 
   // Get id and name from the body of the request
   const body: Body = JSON.parse(event.body);
-  // TODO ログ確認
-  console.log("ログ出力で確認：", body);
+  const id = body.id;
   const category = body.category;
   const title = body.title;
   const questionText = body.questionText;
@@ -55,22 +54,11 @@ exports.putQuestionHandler = async (event: any) => {
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
   let response: Response = { statusCode: 0, body: "", headers: {} };
 
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  const seconds = String(now.getSeconds()).padStart(2, "0");
-  const secondsString = `${year}${month}${day}${hours}${minutes}${seconds}`;
-  const id = Number(secondsString);
-
   try {
     const params = {
       TableName: tableName,
       Item: { id, userId, category, title, questionText },
     };
-
     const data = await docClient.put(params).promise();
 
     response = {

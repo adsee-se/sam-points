@@ -200,10 +200,10 @@ Resources:
         a DynamoDB table.
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref questions
+            TableName: !Ref Questions
       Environment:
         Variables:
-          QUESTIONS_TABLE: !Ref questions
+          QUESTIONS_TABLE: !Ref Questions
       Events:
         Api:
           Type: Api
