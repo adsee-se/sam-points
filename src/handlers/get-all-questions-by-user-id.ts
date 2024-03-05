@@ -15,8 +15,16 @@ const docClient = new dynamodb.DocumentClient(
 );
 
 exports.getAllQuestionsByUserIdHandler = async (event: any) => {
-  const userId = Number(event.pathParameters.userId);
-  let response: { statusCode: number; body: any } = { statusCode: 0, body: {} };
+  const userId = event.pathParameters.userId;
+  let response: { statusCode: number; body: any; headers?: any } = {
+    statusCode: 0,
+    body: {},
+    headers: {
+      "Access-Control-Allow-Origin": "http://localhost:3001/",
+      "Access-Control-Allow-Methods": "GET",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  };
 
   try {
     const params = {
@@ -30,17 +38,20 @@ exports.getAllQuestionsByUserIdHandler = async (event: any) => {
     const items = data.Items;
 
     response = {
+      ...response,
       statusCode: 200,
       body: JSON.stringify(items),
     };
   } catch (error) {
     if (error.code === "ResourceNotFoundException") {
       response = {
+        ...response,
         statusCode: 404,
         body: "DynamoDBテーブルが見つかりません。",
       };
     } else {
       response = {
+        ...response,
         statusCode: 500,
         body: "内部サーバーエラー",
       };

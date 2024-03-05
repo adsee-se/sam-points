@@ -22,8 +22,16 @@ const docClient = new dynamodb.DocumentClient(process.env.AWS_SAM_LOCAL
     }
     : {});
 exports.getAllQuestionsByUserIdHandler = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = Number(event.pathParameters.userId);
-    let response = { statusCode: 0, body: {} };
+    const userId = event.pathParameters.userId;
+    let response = {
+        statusCode: 0,
+        body: {},
+        headers: {
+            "Access-Control-Allow-Origin": "http://localhost:3001/",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type",
+        },
+    };
     try {
         const params = {
             TableName: tableName,
@@ -34,23 +42,14 @@ exports.getAllQuestionsByUserIdHandler = (event) => __awaiter(void 0, void 0, vo
         };
         const data = yield docClient.scan(params).promise();
         const items = data.Items;
-        response = {
-            statusCode: 200,
-            body: JSON.stringify(items),
-        };
+        response = Object.assign(Object.assign({}, response), { statusCode: 200, body: JSON.stringify(items) });
     }
     catch (error) {
         if (error.code === "ResourceNotFoundException") {
-            response = {
-                statusCode: 404,
-                body: "DynamoDBテーブルが見つかりません。",
-            };
+            response = Object.assign(Object.assign({}, response), { statusCode: 404, body: "DynamoDBテーブルが見つかりません。" });
         }
         else {
-            response = {
-                statusCode: 500,
-                body: "内部サーバーエラー",
-            };
+            response = Object.assign(Object.assign({}, response), { statusCode: 500, body: "内部サーバーエラー" });
         }
     }
     return response;
