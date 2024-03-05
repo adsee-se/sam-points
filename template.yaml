@@ -248,5 +248,5 @@ Globals:
     Cors:
       AllowOrigin: "'*'"
       AllowCredentials: true
-      AllowMethods: "'POST'"
-      AllowHeaders: "'Content-Type,X-CSRF-TOKEN'"
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"

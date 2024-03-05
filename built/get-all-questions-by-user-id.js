@@ -27,9 +27,10 @@ exports.getAllQuestionsByUserIdHandler = (event) => __awaiter(void 0, void 0, vo
         statusCode: 0,
         body: {},
         headers: {
-            "Access-Control-Allow-Origin": "http://localhost:3001/",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Credentials": true,
             "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
         },
     };
     try {
