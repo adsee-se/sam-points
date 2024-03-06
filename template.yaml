@@ -5,58 +5,6 @@ Transform:
   - AWS::Serverless-2016-10-31
 
 Resources:
-  getAllItemsFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: src/handlers/get-all-items.getAllItemsHandler
-      Runtime: nodejs16.x
-      Architectures:
-        - x86_64
-      MemorySize: 128
-      Timeout: 100
-      Description:
-        A simple example includes a HTTP get method to get all items from
-        a DynamoDB table.
-      Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
-      Environment:
-        Variables:
-          # Make table name accessible as environment variable from function code during execution
-          SAMPLE_TABLE: !Ref SampleTable
-      Events:
-        Api:
-          Type: Api
-          Properties:
-            Path: /items
-            Method: GET
-
-  getAllFruitsFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: src/handlers/get-all-fruits.getAllItemsHandler
-      Runtime: nodejs16.x
-      Architectures:
-        - x86_64
-      MemorySize: 128
-      Timeout: 100
-      Description:
-        A simple example includes a HTTP get method to get all fruits from
-        a DynamoDB table.
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref FruitsTable
-      Environment:
-        Variables:
-          FRUITS_TABLE: !Ref FruitsTable
-      Events:
-        Api:
-          Type: Api
-          Properties:
-            Path: /fruits
-            Method: GET
-
   getAllPointsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -109,11 +57,11 @@ Resources:
             Path: /questions/{userId}
             Method: GET
 
-  getQuestionByIdFunction:
+  getQuestionByIdAndUserIdFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: built/
-      Handler: get-question-by-id.getQuestionByIdHandler
+      Handler: get-question-by-id-and-user-id.getQuestionByIdAndUserIdHandler
       Runtime: nodejs16.x
       Architectures:
         - x86_64
@@ -134,56 +82,6 @@ Resources:
           Properties:
             Path: /question/{id}/{userId}
             Method: GET
-
-  getByIdFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: src/handlers/get-by-id.getByIdHandler
-      Runtime: nodejs16.x
-      Architectures:
-        - x86_64
-      MemorySize: 128
-      Timeout: 100
-      Description:
-        A simple example includes a HTTP get method to get one item by
-        id from a DynamoDB table.
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
-      Environment:
-        Variables:
-          SAMPLE_TABLE: !Ref SampleTable
-      Events:
-        Api:
-          Type: Api
-          Properties:
-            Path: /item/{id}
-            Method: GET
-
-  putItemFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: src/handlers/put-item.putItemHandler
-      Runtime: nodejs16.x
-      Architectures:
-        - x86_64
-      MemorySize: 128
-      Timeout: 100
-      Description:
-        A simple example includes a HTTP post method to add one item to
-        a DynamoDB table.
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SampleTable
-      Environment:
-        Variables:
-          SAMPLE_TABLE: !Ref SampleTable
-      Events:
-        Api:
-          Type: Api
-          Properties:
-            Path: /item
-            Method: POST
 
   putQuestionFunction:
     Type: AWS::Serverless::Function
@@ -240,6 +138,7 @@ Outputs:
     Description: API Gateway endpoint URL for Prod stage
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
 # # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+
 Globals:
   Function:
     Tracing: Active

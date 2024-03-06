@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,7 +7,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
 const tableName = process.env.QUESTIONS_TABLE;
 const dynamodb = require("aws-sdk/clients/dynamodb");
 const docClient = new dynamodb.DocumentClient(process.env.AWS_SAM_LOCAL
@@ -21,10 +19,14 @@ const docClient = new dynamodb.DocumentClient(process.env.AWS_SAM_LOCAL
         endpoint: "http://dynamodb-local:8000",
     }
     : {});
-exports.getAllQuestionsByUserIdHandler = (event) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getQuestionByIdAndUserIdHandler = (event) => __awaiter(this, void 0, void 0, function* () {
+    if (event.httpMethod !== "GET") {
+        throw new Error(`getMethod only accept GET method, you tried: ${event.httpMethod}`);
+    }
+    const id = event.pathParameters.id;
     const userId = event.pathParameters.userId;
     let response = {
-        statusCode: 0,
+        statusCode: 500,
         body: {},
         headers: {
             "Access-Control-Allow-Origin": "*",
@@ -36,22 +38,14 @@ exports.getAllQuestionsByUserIdHandler = (event) => __awaiter(void 0, void 0, vo
     try {
         const params = {
             TableName: tableName,
-            FilterExpression: "userId = :userIdValue",
-            ExpressionAttributeValues: {
-                ":userIdValue": userId,
-            },
+            Key: { id: id, userId: userId },
         };
-        const data = yield docClient.scan(params).promise();
-        const items = data.Items;
-        response = Object.assign(Object.assign({}, response), { statusCode: 200, body: JSON.stringify(items) });
+        const data = yield docClient.get(params).promise();
+        const item = data.Item;
+        response = Object.assign(Object.assign({}, response), { statusCode: 200, body: JSON.stringify(item) });
     }
-    catch (error) {
-        if (error.code === "ResourceNotFoundException") {
-            response = Object.assign(Object.assign({}, response), { statusCode: 404, body: "DynamoDBテーブルが見つかりません。" });
-        }
-        else {
-            response = Object.assign(Object.assign({}, response), { statusCode: 500, body: "内部サーバーエラー" });
-        }
+    catch (ResourceNotFoundException) {
+        response = Object.assign(Object.assign({}, response), { statusCode: 404, body: "Unable to call DynamoDB. Table resource not found." });
     }
     return response;
 });

@@ -22,8 +22,8 @@ exports.getAllQuestionsByUserIdHandler = async (event: any) => {
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Credentials": true,
-      "Access-Control-Allow-Methods": "GET",
-      "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Headers": "*",
     },
   };
 

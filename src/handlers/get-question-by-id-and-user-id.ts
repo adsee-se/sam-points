@@ -14,7 +14,7 @@ const docClient = new dynamodb.DocumentClient(
     : {}
 );
 
-exports.getQuestionByIdHandler = async (event: any) => {
+exports.getQuestionByIdAndUserIdHandler = async (event: any) => {
   if (event.httpMethod !== "GET") {
     throw new Error(
       `getMethod only accept GET method, you tried: ${event.httpMethod}`
@@ -24,25 +24,33 @@ exports.getQuestionByIdHandler = async (event: any) => {
   const id = event.pathParameters.id;
   const userId = event.pathParameters.userId;
 
-  let response: { statusCode: number; body: any } = {
+  let response: { statusCode: number; body: any; headers?: any } = {
     statusCode: 500,
     body: {},
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Headers": "*",
+    },
   };
 
   try {
     const params = {
       TableName: tableName,
-      Key: { id: Number(id), userId: Number(userId) },
+      Key: { id: id, userId: userId },
     };
     const data = await docClient.get(params).promise();
     const item = data.Item;
 
     response = {
+      ...response,
       statusCode: 200,
       body: JSON.stringify(item),
     };
   } catch (ResourceNotFoundException) {
     response = {
+      ...response,
       statusCode: 404,
       body: "Unable to call DynamoDB. Table resource not found.",
     };

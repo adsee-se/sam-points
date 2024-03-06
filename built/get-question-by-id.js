@@ -28,24 +28,24 @@ exports.getQuestionByIdHandler = (event) => __awaiter(this, void 0, void 0, func
     let response = {
         statusCode: 500,
         body: {},
+        headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Credentials": true,
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        },
     };
     try {
         const params = {
             TableName: tableName,
-            Key: { id: Number(id), userId: Number(userId) },
+            Key: { id: id, userId: userId },
         };
         const data = yield docClient.get(params).promise();
         const item = data.Item;
-        response = {
-            statusCode: 200,
-            body: JSON.stringify(item),
-        };
+        response = Object.assign(Object.assign({}, response), { statusCode: 200, body: JSON.stringify(item) });
     }
     catch (ResourceNotFoundException) {
-        response = {
-            statusCode: 404,
-            body: "Unable to call DynamoDB. Table resource not found.",
-        };
+        response = Object.assign(Object.assign({}, response), { statusCode: 404, body: "Unable to call DynamoDB. Table resource not found." });
     }
     return response;
 });
