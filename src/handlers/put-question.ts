@@ -24,12 +24,6 @@ interface Body {
   questionText: string;
 }
 
-interface Response {
-  statusCode: number;
-  body: string;
-  headers: Object;
-}
-
 /**
  * A simple example includes a HTTP post method to add one item to a DynamoDB table.
  */
@@ -52,30 +46,34 @@ exports.putQuestionHandler = async (event: any) => {
 
   // Creates a new item, or replaces an old item with a new item
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
-  let response: Response = { statusCode: 0, body: "", headers: {} };
+  let response: { statusCode: number; body?: string; headers?: any } = {
+    statusCode: 999,
+    body: "",
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Headers": "*",
+    },
+  };
 
   try {
     const params = {
       TableName: tableName,
       Item: { id, userId, category, title, questionText },
     };
-    const data = await docClient.put(params).promise();
+    await docClient.put(params).promise();
 
     response = {
+      ...response,
+      body: "保存に成功しました",
       statusCode: 200,
-      body: JSON.stringify(data),
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Credentials": true,
-        "Access-Control-Allow-Methods": "POST",
-        "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-      },
     };
   } catch (ResourceNotFoundException) {
     response = {
+      ...response,
       statusCode: 404,
-      body: "Unable to call DynamoDB. Table resource not found.",
-      headers: {},
+      body: "DynamoDBテーブルが見つかりません。",
     };
   }
 
@@ -83,6 +81,8 @@ exports.putQuestionHandler = async (event: any) => {
   console.info(
     `response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`
   );
+
+  console.log(response, "backResponse");
 
   return response;
 };

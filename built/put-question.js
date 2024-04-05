@@ -41,32 +41,29 @@ exports.putQuestionHandler = (event) => __awaiter(void 0, void 0, void 0, functi
     const userId = body.userId;
     // Creates a new item, or replaces an old item with a new item
     // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
-    let response = { statusCode: 0, body: "", headers: {} };
+    let response = {
+        statusCode: 999,
+        body: "",
+        headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Credentials": true,
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        },
+    };
     try {
         const params = {
             TableName: tableName,
             Item: { id, userId, category, title, questionText },
         };
-        const data = yield docClient.put(params).promise();
-        response = {
-            statusCode: 200,
-            body: JSON.stringify(data),
-            headers: {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Credentials": true,
-                "Access-Control-Allow-Methods": "POST",
-                "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-            },
-        };
+        yield docClient.put(params).promise();
+        response = Object.assign(Object.assign({}, response), { body: "保存に成功しました", statusCode: 200 });
     }
     catch (ResourceNotFoundException) {
-        response = {
-            statusCode: 404,
-            body: "Unable to call DynamoDB. Table resource not found.",
-            headers: {},
-        };
+        response = Object.assign(Object.assign({}, response), { statusCode: 404, body: "DynamoDBテーブルが見つかりません。" });
     }
     // All log statements are written to CloudWatch
     console.info(`response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`);
+    console.log(response, "backResponse");
     return response;
 });
