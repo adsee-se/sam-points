@@ -22,7 +22,7 @@ exports.getAllPointsHandler = async (event: any) => {
   }
   console.info("received:", event);
 
-  let response: { statusCode: number; body: any } = { statusCode: 0, body: {} };
+  let response: { statusCode: number; body: any } = { statusCode: 200, body: {} };
 
   try {
     const params = {

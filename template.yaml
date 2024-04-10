@@ -20,10 +20,10 @@ Resources:
         a DynamoDB table.
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref point
+            TableName: !Ref Points
       Environment:
         Variables:
-          POINTS_TABLE: !Ref point
+          POINTS_TABLE: !Ref Points
       Events:
         Api:
           Type: Api
