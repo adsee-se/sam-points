@@ -39,6 +39,7 @@ exports.putQuestionHandler = (event) => __awaiter(void 0, void 0, void 0, functi
     const title = body.title;
     const questionText = body.questionText;
     const userId = body.userId;
+    const createdAt = new Date().toISOString();
     // Creates a new item, or replaces an old item with a new item
     // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
     let response = {
@@ -54,7 +55,7 @@ exports.putQuestionHandler = (event) => __awaiter(void 0, void 0, void 0, functi
     try {
         const params = {
             TableName: tableName,
-            Item: { id, userId, category, title, questionText },
+            Item: { id, userId, category, title, questionText, createdAt },
         };
         yield docClient.put(params).promise();
         response = Object.assign(Object.assign({}, response), { body: "保存に成功しました", statusCode: 200 });
