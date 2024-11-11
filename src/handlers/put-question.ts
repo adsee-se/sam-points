@@ -22,6 +22,7 @@ interface Body {
   category: string;
   title: string;
   questionText: string;
+  createdAt: string;
 }
 
 /**
@@ -43,6 +44,7 @@ exports.putQuestionHandler = async (event: any) => {
   const title = body.title;
   const questionText = body.questionText;
   const userId = body.userId;
+  const createdAt = new Date().toISOString();
 
   // Creates a new item, or replaces an old item with a new item
   // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
@@ -60,7 +62,7 @@ exports.putQuestionHandler = async (event: any) => {
   try {
     const params = {
       TableName: tableName,
-      Item: { id, userId, category, title, questionText },
+      Item: { id, userId, category, title, questionText, createdAt },
     };
     await docClient.put(params).promise();
 
